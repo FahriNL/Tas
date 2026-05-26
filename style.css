@@ -1,0 +1,1650 @@
+/* ==========================================
+   POKÉMON DUEL CEPAT - GLOBAL STYLES & THEME
+   ========================================== */
+
+:root {
+  --color-wood-dark: #1f110b;
+  --color-wood-light: #3a2218;
+  --color-playmat: #0e2038;
+  --color-playmat-border: #d4af37; /* Gold */
+  
+  /* Pokémon Element Familiar Colors */
+  --type-fire: #e63946;
+  --type-fire-bg: linear-gradient(135deg, #f05a5a, #b31010);
+  --type-water: #2b6cb0;
+  --type-water-bg: linear-gradient(135deg, #4299e1, #1a365d);
+  --type-grass: #2f855a;
+  --type-grass-bg: linear-gradient(135deg, #48bb78, #1c4532);
+  --type-lightning: #d69e2e;
+  --type-lightning-bg: linear-gradient(135deg, #ecc94b, #b7791f);
+  --type-psychic: #805ad5;
+  --type-psychic-bg: linear-gradient(135deg, #9f7aea, #4a1280);
+  --type-colorless: #718096;
+  --type-colorless-bg: linear-gradient(135deg, #a0aec0, #4a5568);
+  
+  --card-gold-border: #ecc94b;
+  --card-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+  --card-glow-fire: 0 0 12px rgba(230, 57, 70, 0.5);
+  --card-glow-water: 0 0 12px rgba(43, 108, 176, 0.5);
+  --card-glow-grass: 0 0 12px rgba(47, 133, 90, 0.5);
+  --card-glow-lightning: 0 0 12px rgba(214, 158, 46, 0.5);
+  --card-glow-psychic: 0 0 12px rgba(128, 90, 213, 0.5);
+  
+  --transition-smooth: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+/* Base Setup */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  font-family: 'Poppins', sans-serif;
+  background-color: var(--color-wood-dark);
+  color: #f7fafc;
+}
+
+/* App Container locked in portrait or scaled */
+.app-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  max-width: 480px; /* Limit on desktop for mobile feel */
+  margin: 0 auto;
+  overflow: hidden;
+  background: radial-gradient(circle, var(--color-wood-light) 0%, var(--color-wood-dark) 100%);
+  box-shadow: 0 0 30px rgba(0, 0, 0, 0.8);
+  display: flex;
+  flex-direction: column;
+}
+
+/* Screens transitions */
+.screen {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  visibility: hidden;
+  transform: scale(0.95);
+  transition: opacity 0.3s ease, transform 0.3s ease, visibility 0.3s;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 16px;
+  padding-bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+  padding-top: calc(16px + env(safe-area-inset-top, 0px));
+}
+
+.screen.active {
+  opacity: 1;
+  visibility: visible;
+  transform: scale(1);
+  z-index: 2;
+}
+
+/* Utility classes */
+.text-center { text-align: center; }
+.text-muted { color: #a0aec0; }
+.text-gold { color: var(--card-gold-border); }
+.text-red { color: #fc8181; }
+.font-sm { font-size: 0.85rem; }
+.font-xs { font-size: 0.7rem; }
+.hide { display: none !important; }
+.btn-block { width: 100%; }
+
+/* ==========================================
+   BUTTONS & COMMON UI
+   ========================================== */
+.btn {
+  font-family: 'Outfit', sans-serif;
+  font-weight: 600;
+  padding: 12px 24px;
+  border-radius: 50px;
+  border: none;
+  font-size: 1rem;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: var(--transition-smooth);
+  box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #d4af37, #b8860b);
+  color: #1a202c;
+  border: 1px solid #ecc94b;
+}
+
+.btn-primary:active {
+  transform: translateY(2px);
+  box-shadow: 0 2px 3px rgba(0,0,0,0.3);
+}
+
+.btn-glow {
+  animation: pulse-glow 2s infinite alternate;
+}
+
+.btn-secondary {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: #f7fafc;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(5px);
+}
+
+.btn-secondary:active {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+.btn-text {
+  background: none;
+  box-shadow: none;
+  color: #cbd5e0;
+}
+
+.btn-text:active {
+  color: #fff;
+}
+
+.btn-sm {
+  padding: 6px 12px;
+  font-size: 0.8rem;
+}
+
+.btn-circle {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background-color: rgba(0, 0, 0, 0.6);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  cursor: pointer;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+}
+
+.btn-back {
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 1.3rem;
+  cursor: pointer;
+  padding: 8px;
+}
+
+/* ==========================================
+   1. WELCOME SCREEN
+   ========================================== */
+#welcome-screen {
+  justify-content: center;
+  align-items: center;
+  gap: 30px;
+}
+
+.brand-logo-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.ball-logo {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  border: 6px solid #000;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 8px 16px rgba(0,0,0,0.4);
+  margin-bottom: 20px;
+  animation: logo-float 4s ease-in-out infinite;
+}
+
+.ball-red {
+  height: 50%;
+  background-color: #e63946;
+}
+
+.ball-white {
+  height: 50%;
+  background-color: #fff;
+}
+
+.ball-button {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 32px;
+  height: 32px;
+  background-color: #fff;
+  border: 6px solid #000;
+  border-radius: 50%;
+  z-index: 10;
+}
+
+.ball-button::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 12px;
+  height: 12px;
+  background-color: #ccc;
+  border-radius: 50%;
+}
+
+.brand-title {
+  font-family: 'Outfit', sans-serif;
+  font-weight: 800;
+  font-size: 2.8rem;
+  letter-spacing: 2px;
+  color: #f6e05e;
+  text-shadow: -3px -3px 0 #1a365d, 3px -3px 0 #1a365d, -3px 3px 0 #1a365d, 3px 3px 0 #1a365d, 0 6px 10px rgba(0,0,0,0.5);
+  line-height: 1;
+}
+
+.brand-subtitle {
+  font-family: 'Outfit', sans-serif;
+  font-weight: 800;
+  font-size: 2rem;
+  color: #fff;
+  letter-spacing: 1px;
+  text-shadow: -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 2px 2px 0 #000;
+  margin-top: -5px;
+}
+
+.brand-tagline {
+  margin-top: 10px;
+  color: #cbd5e0;
+  font-size: 0.9rem;
+}
+
+.welcome-actions {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  gap: 12px;
+  max-width: 280px;
+}
+
+.footer-credit {
+  position: absolute;
+  bottom: 12px;
+  font-size: 0.75rem;
+  color: #718096;
+}
+
+/* ==========================================
+   2. DECK SELECTION SCREEN
+   ========================================== */
+.screen-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.screen-header h2 {
+  font-family: 'Outfit', sans-serif;
+  font-size: 1.5rem;
+}
+
+.screen-description {
+  margin-bottom: 20px;
+  color: #cbd5e0;
+}
+
+.deck-carousel-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  overflow-y: auto;
+  flex: 1;
+  padding-right: 4px;
+}
+
+/* Styled Scrollbars */
+.deck-carousel-container::-webkit-scrollbar {
+  width: 4px;
+}
+.deck-carousel-container::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+}
+
+.deck-card {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  overflow: hidden;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  transition: var(--transition-smooth);
+}
+
+.deck-card:active {
+  transform: scale(0.98);
+}
+
+.deck-card-banner {
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: #fff;
+}
+
+.fire-gradient { background: var(--type-fire-bg); }
+.water-gradient { background: var(--type-water-bg); }
+.grass-gradient { background: var(--type-grass-bg); }
+.custom-gradient { background: linear-gradient(135deg, #2d3748, #1a202c); border-bottom: 1px solid var(--color-playmat-border); }
+
+.icon-deck-type {
+  font-size: 1.5rem;
+}
+
+.deck-card-banner h3 {
+  font-family: 'Outfit', sans-serif;
+  font-size: 1.15rem;
+}
+
+.deck-card-body {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.deck-card-body p {
+  font-size: 0.85rem;
+  color: #cbd5e0;
+}
+
+.deck-preview-list {
+  list-style: none;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  font-size: 0.8rem;
+  background: rgba(0,0,0,0.2);
+  padding: 10px;
+  border-radius: 8px;
+}
+
+.deck-preview-list li {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+.dot.fire { background-color: var(--type-fire); }
+.dot.water { background-color: var(--type-water); }
+.dot.grass { background-color: var(--type-grass); }
+.dot.trainer { background-color: #a0aec0; }
+
+.deck-card.locked {
+  opacity: 0.6;
+}
+
+/* ==========================================
+   3. DECK BUILDER / SCANNER SCREEN
+   ========================================== */
+.scanner-container {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  margin-bottom: 12px;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  position: relative;
+  background-color: #000;
+}
+
+.scanner-camera-box {
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+
+#scanner-video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.scanner-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.scan-frame {
+  width: 50%;
+  height: 80%;
+  border: 3px solid var(--color-playmat-border);
+  border-radius: 8px;
+  box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.5);
+  position: relative;
+}
+
+.scan-frame::before {
+  content: '';
+  position: absolute;
+  top: -10px;
+  left: -10px;
+  right: -10px;
+  bottom: -10px;
+  border: 1px solid rgba(255,255,255,0.3);
+  border-radius: 12px;
+}
+
+.scan-line {
+  position: absolute;
+  width: 50%;
+  height: 4px;
+  background-color: rgba(212, 175, 55, 0.8);
+  box-shadow: 0 0 8px #d4af37;
+  animation: scan-move 2.5s ease-in-out infinite;
+}
+
+.scanner-controls-overlay {
+  position: absolute;
+  bottom: 12px;
+  left: 0;
+  width: 100%;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  padding: 0 16px;
+  z-index: 10;
+}
+
+.btn-scan-trigger {
+  background: #d4af37;
+  color: #000;
+  border: none;
+  border-radius: 40px;
+  padding: 10px 20px;
+  font-family: 'Outfit', sans-serif;
+  font-weight: 600;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.4);
+}
+
+.btn-scan-trigger:active {
+  transform: translateY(2px);
+}
+
+.scan-status-indicator {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  background: rgba(0, 0, 0, 0.7);
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  color: #48bb78;
+  border: 1px solid rgba(72, 187, 120, 0.3);
+}
+
+.search-box-container {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.search-box-container input {
+  flex: 1;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 30px;
+  padding: 10px 16px;
+  color: #fff;
+  font-family: inherit;
+  font-size: 0.9rem;
+  outline: none;
+}
+
+.search-box-container input:focus {
+  border-color: var(--color-playmat-border);
+}
+
+.search-box-container button {
+  padding: 10px 20px;
+}
+
+/* Scanned Result Card Display */
+.scanned-card-result {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--color-playmat-border);
+  border-radius: 16px;
+  padding: 12px;
+  margin-top: 12px;
+  animation: fade-in 0.3s ease-out;
+}
+
+.result-card-info {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+
+.result-details {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.result-details h4 {
+  font-family: 'Outfit', sans-serif;
+  font-size: 1.1rem;
+}
+
+.res-attacks-list {
+  font-size: 0.75rem;
+  background: rgba(0, 0, 0, 0.2);
+  padding: 8px;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.res-attack-item {
+  display: flex;
+  justify-content: space-between;
+}
+
+/* Deck Progress */
+.my-deck-list-container {
+  margin-top: 16px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.deck-list-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.deck-list-header h3 {
+  font-family: 'Outfit', sans-serif;
+  font-size: 1rem;
+}
+
+.deck-list-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.deck-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  overflow-y: auto;
+  flex: 1;
+  padding-bottom: 16px;
+}
+
+.deck-grid::-webkit-scrollbar {
+  width: 4px;
+}
+.deck-grid::-webkit-scrollbar-thumb {
+  background-color: rgba(255,255,255,0.1);
+  border-radius: 4px;
+}
+
+.empty-deck-notice {
+  grid-column: span 4;
+  text-align: center;
+  padding: 30px 10px;
+  color: #718096;
+  font-size: 0.8rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.empty-deck-notice i {
+  font-size: 2.5rem;
+}
+
+/* ==========================================
+   POKÉMON CARD GRAPHICS (RENDERED DYNAMICALLY)
+   ========================================== */
+.pokemon-card {
+  width: 100%;
+  aspect-ratio: 2.5 / 3.5;
+  border-radius: 6px;
+  border: 3px solid var(--card-gold-border);
+  box-shadow: var(--card-shadow);
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  cursor: pointer;
+  background-size: cover;
+  background-position: center;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.pokemon-card.fire { background: var(--type-fire-bg); box-shadow: var(--card-glow-fire); }
+.pokemon-card.water { background: var(--type-water-bg); box-shadow: var(--card-glow-water); }
+.pokemon-card.grass { background: var(--type-grass-bg); box-shadow: var(--card-glow-grass); }
+.pokemon-card.lightning { background: var(--type-lightning-bg); box-shadow: var(--card-glow-lightning); }
+.pokemon-card.psychic { background: var(--type-psychic-bg); box-shadow: var(--card-glow-psychic); }
+.pokemon-card.colorless { background: var(--type-colorless-bg); }
+
+/* Inside card visual layout */
+.card-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 3px 5px;
+  background: rgba(0,0,0,0.3);
+  color: #fff;
+}
+
+.card-stage-tag {
+  font-size: 0.55rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  background: #d4af37;
+  color: #000;
+  padding: 0 4px;
+  border-radius: 3px;
+}
+
+.card-name-text {
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.65rem;
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 60%;
+}
+
+.card-hp-text {
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.6rem;
+  font-weight: 800;
+}
+
+.card-illustration {
+  flex: 1;
+  width: 90%;
+  margin: 2px auto;
+  border-radius: 4px;
+  border: 1px solid rgba(0,0,0,0.4);
+  background-size: cover;
+  background-position: center;
+  background-color: rgba(255,255,255,0.1);
+  box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
+  position: relative;
+}
+
+/* Card Holographic Foil Effect Overlay */
+.card-holo-foil {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(125deg, 
+    rgba(255,255,255,0) 30%, 
+    rgba(255,255,255,0.15) 45%, 
+    rgba(255,255,255,0.25) 50%, 
+    rgba(255,255,255,0.15) 55%, 
+    rgba(255,255,255,0) 70%
+  );
+  background-size: 200% 200%;
+  background-position: 0% 0%;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.pokemon-card:hover .card-holo-foil {
+  animation: holo-shine 1.5s ease infinite alternate;
+}
+
+.card-body-row {
+  padding: 3px 5px;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(2px);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.card-attack-line {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.5rem;
+  color: #fff;
+  white-space: nowrap;
+}
+
+.card-attack-line .att-name {
+  font-weight: 600;
+  max-width: 75%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.card-attack-line .att-dmg {
+  font-weight: 700;
+  color: #ecc94b;
+}
+
+/* Card Element Preview inside search */
+.card-element-preview {
+  width: 80px;
+  height: 112px;
+  flex-shrink: 0;
+}
+
+.card-element-preview-large {
+  width: 150px;
+  height: 210px;
+  margin: 0 auto;
+}
+
+.card-element-preview-large .card-name-text { font-size: 0.9rem; }
+.card-element-preview-large .card-hp-text { font-size: 0.85rem; }
+.card-element-preview-large .card-stage-tag { font-size: 0.7rem; }
+.card-element-preview-large .card-attack-line { font-size: 0.75rem; padding: 2px 0; }
+
+/* Tactile red damage counter dice on card */
+.card-damage-counters-holder {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  justify-content: center;
+  align-items: center;
+  width: 80%;
+  z-index: 5;
+  pointer-events: none;
+}
+
+.damage-dice {
+  width: 18px;
+  height: 18px;
+  background-color: #b30f0f;
+  color: #fff;
+  border-radius: 4px;
+  border: 1px solid #ff7373;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.6rem;
+  font-weight: 800;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.5), inset 0 0 4px rgba(255,255,255,0.4);
+  animation: pop-in 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+/* ==========================================
+   4. GAME PLAYING ARENA SCREEN (PORTRAIT)
+   ========================================== */
+#game-screen {
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--color-playmat);
+  background-image: 
+    radial-gradient(ellipse at center, rgba(16, 42, 67, 0.5) 0%, rgba(11, 29, 51, 0.9) 100%),
+    repeating-linear-gradient(45deg, rgba(255,255,255,0.01) 0px, rgba(255,255,255,0.01) 2px, transparent 2px, transparent 10px);
+  border: 4px solid var(--color-playmat-border);
+}
+
+.game-header-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  background-color: rgba(0,0,0,0.6);
+  border-bottom: 2px solid var(--color-playmat-border);
+  z-index: 10;
+}
+
+.btn-concede {
+  background: none;
+  border: none;
+  color: #fc8181;
+  font-size: 1.1rem;
+  cursor: pointer;
+  padding: 4px;
+}
+
+.game-turn-banner {
+  font-family: 'Outfit', sans-serif;
+  font-weight: 800;
+  font-size: 0.9rem;
+  background: #d4af37;
+  color: #000;
+  padding: 3px 12px;
+  border-radius: 12px;
+  letter-spacing: 0.5px;
+}
+
+.game-turn-banner.opponent {
+  background: #a0aec0;
+}
+
+.ko-tracker-group {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.ko-tracker {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.65rem;
+}
+
+.ko-balls {
+  display: flex;
+  gap: 3px;
+}
+
+.ko-ball-slot i {
+  font-size: 0.6rem;
+}
+.ko-ball-slot.active i {
+  color: #e63946;
+  text-shadow: 0 0 4px #e63946;
+  animation: pop-in 0.25s ease;
+}
+
+/* Battlefield Container */
+.battlefield-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  position: relative;
+}
+
+.field-half {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  padding: 6px 12px;
+}
+
+.opponent-field {
+  border-bottom: 1px dashed rgba(255,255,255,0.1);
+  background-color: rgba(0, 0, 0, 0.08);
+}
+
+.player-field {
+  background-color: rgba(255, 255, 255, 0.01);
+}
+
+/* Divider Banner / Play Log */
+.battle-log-bar {
+  background: rgba(0, 0, 0, 0.7);
+  border-top: 1px solid var(--color-playmat-border);
+  border-bottom: 1px solid var(--color-playmat-border);
+  padding: 6px 12px;
+  color: #ecc94b;
+  text-align: center;
+  font-size: 0.75rem;
+  font-weight: 500;
+  min-height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 8;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Rows Layouts */
+.deck-hand-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  height: 60px;
+}
+
+.deck-discard-block {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.game-deck-pile, .game-discard-pile {
+  width: 40px;
+  height: 56px;
+  border-radius: 4px;
+  border: 1.5px solid rgba(255,255,255,0.2);
+  position: relative;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.4);
+}
+
+.game-deck-pile {
+  border-color: var(--card-gold-border);
+}
+
+.card-back-pattern {
+  width: 100%;
+  height: 100%;
+  background-color: #1a365d;
+  background-image: 
+    radial-gradient(circle, #2a4365 30%, transparent 35%),
+    radial-gradient(circle, #2d3748 10%, transparent 15%);
+  border-radius: 3px;
+}
+
+.deck-count-badge {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  background-color: var(--card-gold-border);
+  color: #000;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.6rem;
+  font-weight: 800;
+  border: 1px solid #000;
+}
+
+.game-discard-pile {
+  background-color: rgba(255,255,255,0.05);
+  border-style: dashed;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.discard-empty-placeholder {
+  font-size: 0.5rem;
+  color: rgba(255,255,255,0.2);
+  text-transform: uppercase;
+  font-weight: 700;
+  transform: rotate(-15deg);
+}
+
+/* Hands display */
+.hand-outer-wrapper {
+  flex: 1;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding-bottom: 2px;
+}
+
+.hand-outer-wrapper::-webkit-scrollbar {
+  height: 0px; /* Hide scrollbars for ultra-sleek clean look */
+}
+
+.hand-container {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.hand-container.scrollable {
+  min-width: max-content;
+  padding: 4px;
+}
+
+.hand-container.compact {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+.hand-container.compact .card-back-pattern.small {
+  width: 32px;
+  height: 44px;
+  border: 1px solid rgba(255,255,255,0.3);
+  border-radius: 3px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+  margin-left: -12px; /* Overlap cards like real hand */
+  transition: transform 0.2s;
+}
+
+.hand-container.compact .card-back-pattern.small:first-child {
+  margin-left: 0;
+}
+
+/* Hand cards layout interactives */
+.hand-container.scrollable .pokemon-card {
+  width: 44px;
+  height: 62px;
+  border-width: 1.5px;
+}
+
+/* Bench slots layout */
+.bench-row {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+}
+
+.bench-slot {
+  width: 50px;
+  height: 70px;
+  border-radius: 6px;
+  border: 1.5px dashed rgba(255, 255, 255, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(255, 255, 255, 0.25);
+  font-size: 0.6rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  background-color: rgba(0, 0, 0, 0.15);
+  box-shadow: inset 0 2px 6px rgba(0,0,0,0.4);
+  transition: var(--transition-smooth);
+}
+
+.bench-slot.empty:active {
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+.bench-slot .pokemon-card {
+  width: 100%;
+  height: 100%;
+}
+
+/* Active Slots Layout */
+.active-row {
+  display: flex;
+  justify-content: center;
+  position: relative;
+}
+
+.active-slot-container {
+  position: relative;
+  width: 80px;
+  height: 112px;
+}
+
+.zone-label-floating {
+  position: absolute;
+  top: -16px;
+  left: 50%;
+  transform: translateX(-50%);
+  color: rgba(255, 255, 255, 0.35);
+  font-weight: 700;
+  white-space: nowrap;
+  letter-spacing: 0.5px;
+  pointer-events: none;
+}
+
+.active-slot {
+  width: 100%;
+  height: 100%;
+  border-radius: 8px;
+  border: 2px dashed rgba(212, 175, 55, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(212, 175, 55, 0.4);
+  font-size: 0.6rem;
+  text-align: center;
+  padding: 10px;
+  font-weight: 700;
+  background-color: rgba(0, 0, 0, 0.25);
+  box-shadow: inset 0 4px 10px rgba(0,0,0,0.6);
+  text-transform: uppercase;
+  transition: var(--transition-smooth);
+}
+
+.active-slot .pokemon-card {
+  width: 100%;
+  height: 100%;
+}
+
+/* Action shortcuts row at absolute bottom */
+.game-action-shortcuts {
+  display: flex;
+  gap: 12px;
+  padding: 8px 16px;
+  background-color: rgba(0, 0, 0, 0.75);
+  border-top: 1.5px solid var(--color-playmat-border);
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: calc(8px + env(safe-area-inset-bottom, 0px));
+}
+
+.game-action-shortcuts button {
+  flex: 1;
+}
+
+/* ==========================================
+   5. MOBILE BOTTOM DRAWER
+   ========================================== */
+.bottom-drawer-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  z-index: 100;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.bottom-drawer-overlay.active {
+  opacity: 1;
+  visibility: visible;
+}
+
+.bottom-drawer-content {
+  width: 100%;
+  max-width: 480px;
+  background-color: #1a202c;
+  border-top: 3px solid var(--color-playmat-border);
+  border-radius: 24px 24px 0 0;
+  padding: 20px;
+  padding-bottom: calc(20px + env(safe-area-inset-bottom, 10px));
+  transform: translateY(100%);
+  transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  position: relative;
+}
+
+.bottom-drawer-overlay.active .bottom-drawer-content {
+  transform: translateY(0);
+}
+
+.drawer-drag-handle {
+  width: 40px;
+  height: 4px;
+  background-color: rgba(255, 255, 255, 0.2);
+  border-radius: 2px;
+  margin: 0 auto 16px auto;
+}
+
+.btn-close-drawer {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  background: rgba(255, 255, 255, 0.05);
+  border: none;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.drawer-layout {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+}
+
+.drawer-card-preview-container {
+  flex-shrink: 0;
+}
+
+.drawer-actions-panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.drawer-actions-panel h3 {
+  font-family: 'Outfit', sans-serif;
+  font-size: 1.3rem;
+  color: #fff;
+}
+
+.drawer-actions-panel p {
+  font-size: 0.9rem;
+  color: #cbd5e0;
+}
+
+.drawer-damage-counters {
+  font-size: 0.8rem;
+  color: #fc8181;
+  font-weight: 600;
+  background: rgba(252, 129, 129, 0.1);
+  padding: 6px 12px;
+  border-radius: 8px;
+  border: 1px solid rgba(252, 129, 129, 0.2);
+  text-align: center;
+}
+
+.actions-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.actions-group button {
+  font-size: 0.9rem;
+  padding: 10px 16px;
+}
+
+/* ==========================================
+   6. 3D COIN FLIP OVERLAY
+   ========================================== */
+.coin-flip-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.8);
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 1;
+  transition: opacity 0.3s;
+}
+
+.coin-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 30px;
+  perspective: 1000px;
+}
+
+.coin-3d {
+  width: 120px;
+  height: 120px;
+  position: relative;
+  transform-style: preserve-3d;
+  transition: transform 0.1s;
+}
+
+.coin-side {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  backface-visibility: hidden;
+  border: 6px solid #b8860b;
+  box-shadow: 0 10px 20px rgba(0,0,0,0.5), inset 0 0 10px rgba(255,255,255,0.4);
+}
+
+.coin-heads {
+  background-color: #000;
+  z-index: 2;
+  transform: rotateY(0deg);
+}
+
+.coin-tails {
+  background-color: #0d1e36;
+  transform: rotateY(180deg);
+}
+
+/* Front Head: Gold Poke Ball design */
+.poke-ball-coin-heads {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  overflow: hidden;
+  position: relative;
+  background-color: #000;
+}
+
+.coin-red {
+  height: 50%;
+  background: linear-gradient(to bottom, #d63031, #b33939);
+}
+
+.coin-white {
+  height: 50%;
+  background: linear-gradient(to bottom, #ffffff, #dfe6e9);
+}
+
+.coin-center-line {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 100%;
+  height: 8px;
+  background-color: #000;
+  transform: translateY(-50%);
+}
+
+.coin-center-button {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 28px;
+  height: 28px;
+  background-color: #fff;
+  border: 5px solid #000;
+  border-radius: 50%;
+}
+
+/* Back Tail: Gold Classic Card Star/Swirl symbol */
+.poke-ball-coin-tails {
+  width: 100%;
+  height: 100%;
+  background-color: #0e2038;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.coin-back-pattern {
+  width: 40px;
+  height: 40px;
+  background-color: #d4af37;
+  clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+  animation: logo-float 2s infinite ease-in-out;
+}
+
+.coin-result-text {
+  font-family: 'Outfit', sans-serif;
+  font-weight: 800;
+  font-size: 1.8rem;
+  color: #fff;
+  letter-spacing: 1px;
+  text-shadow: 0 4px 10px rgba(0,0,0,0.5);
+  text-align: center;
+  min-height: 40px;
+}
+
+/* Animations Trigger */
+.animate-coin-spin {
+  animation: coin-spin-anim 2.5s cubic-bezier(0.1, 0.8, 0.1, 1.0) forwards;
+}
+
+@keyframes coin-spin-anim {
+  0% {
+    transform: rotateX(0deg) rotateY(0deg) translateY(0);
+  }
+  15% {
+    transform: rotateX(360deg) rotateY(180deg) translateY(-80px);
+  }
+  30% {
+    transform: rotateX(720deg) rotateY(360deg) translateY(-120px);
+  }
+  45% {
+    transform: rotateX(1080deg) rotateY(720deg) translateY(-140px);
+  }
+  60% {
+    transform: rotateX(1440deg) rotateY(1080deg) translateY(-100px);
+  }
+  75% {
+    transform: rotateX(1800deg) rotateY(1440deg) translateY(-40px);
+  }
+  90% {
+    transform: rotateX(2160deg) rotateY(1620deg) translateY(-10px);
+  }
+  100% {
+    transform: var(--coin-target-rotation) translateY(0);
+  }
+}
+
+/* ==========================================
+   7. WINNER & OVERLAY SCREENS
+   ========================================== */
+.winner-overlay, .modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(8px);
+  z-index: 300;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.winner-box {
+  background: rgba(26, 32, 44, 0.95);
+  border: 2px solid var(--color-playmat-border);
+  border-radius: 24px;
+  padding: 30px;
+  text-align: center;
+  width: 100%;
+  max-width: 360px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+  animation: zoom-in 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.winner-icon {
+  font-size: 4rem;
+  animation: logo-float 3s ease-in-out infinite;
+}
+
+.winner-box h2 {
+  font-family: 'Outfit', sans-serif;
+  font-weight: 800;
+  font-size: 2rem;
+  letter-spacing: 1px;
+}
+
+.winner-box p {
+  color: #cbd5e0;
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+/* Rules Modal */
+.modal-content {
+  background: #1a202c;
+  border-radius: 20px;
+  border: 2px solid rgba(255,255,255,0.1);
+  width: 100%;
+  max-width: 400px;
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+  animation: pop-in 0.3s ease-out;
+}
+
+.modal-header {
+  padding: 16px 20px;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.modal-header h3 {
+  font-family: 'Outfit', sans-serif;
+  font-size: 1.15rem;
+}
+
+.btn-close-modal {
+  background: none;
+  border: none;
+  color: #a0aec0;
+  font-size: 1.2rem;
+  cursor: pointer;
+}
+
+.modal-body {
+  padding: 20px;
+  overflow-y: auto;
+  color: #cbd5e0;
+  line-height: 1.6;
+}
+
+.modal-body ol {
+  padding-left: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.modal-body ul {
+  padding-left: 20px;
+  margin-top: 4px;
+  list-style-type: circle;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+/* ==========================================
+   TACTILE MICRO-ANIMATIONS (KEYFRAMES)
+   ========================================== */
+@keyframes logo-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+@keyframes scan-move {
+  0%, 100% { top: 10%; }
+  50% { top: 85%; }
+}
+
+@keyframes pulse-glow {
+  0% { box-shadow: 0 0 8px rgba(212, 175, 55, 0.4); }
+  100% { box-shadow: 0 0 20px rgba(212, 175, 55, 0.8); }
+}
+
+@keyframes holo-shine {
+  0% { background-position: 0% 0%; }
+  100% { background-position: 100% 100%; }
+}
+
+@keyframes pop-in {
+  0% { transform: scale(0.6); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes zoom-in {
+  0% { transform: scale(0.8); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Interactive Card Battle Animations */
+.animate-attack-player {
+  animation: attack-player-anim 0.5s ease-in-out;
+}
+
+.animate-attack-opponent {
+  animation: attack-opponent-anim 0.5s ease-in-out;
+}
+
+.animate-damage-shake {
+  animation: damage-shake-anim 0.4s ease-in-out;
+}
+
+@keyframes attack-player-anim {
+  0% { transform: translateY(0) scale(1); }
+  30% { transform: translateY(-25px) scale(1.1); z-index: 10; }
+  50% { transform: translateY(-35px) scale(1.1) rotate(-5deg); z-index: 10; }
+  70% { transform: translateY(-30px) scale(1.05); }
+  100% { transform: translateY(0) scale(1); }
+}
+
+@keyframes attack-opponent-anim {
+  0% { transform: translateY(0) scale(1); }
+  30% { transform: translateY(25px) scale(1.1); z-index: 10; }
+  50% { transform: translateY(35px) scale(1.1) rotate(5deg); z-index: 10; }
+  70% { transform: translateY(30px) scale(1.05); }
+  100% { transform: translateY(0) scale(1); }
+}
+
+@keyframes damage-shake-anim {
+  0%, 100% { transform: translateX(0); filter: brightness(1); }
+  20%, 60% { transform: translateX(-8px) rotate(-3deg); filter: brightness(1.5) sepia(0.8) hue-rotate(-50deg); }
+  40%, 80% { transform: translateX(8px) rotate(3deg); filter: brightness(1.5) sepia(0.8) hue-rotate(-50deg); }
+}
+
+.animate-card-ko {
+  animation: card-ko-anim 0.8s ease-out forwards;
+}
+
+@keyframes card-ko-anim {
+  0% { transform: scale(1) rotate(0deg); opacity: 1; filter: grayscale(0); }
+  40% { transform: scale(1.1) rotate(10deg); opacity: 0.8; filter: grayscale(0.5) contrast(1.5); }
+  100% { transform: scale(0) rotate(-45deg); opacity: 0; filter: grayscale(1); }
+}
+
+/* Drawing cards animation */
+.animate-draw-card {
+  animation: draw-card-anim 0.4s cubic-bezier(0.25, 0.8, 0.25, 1) forwards;
+}
+
+@keyframes draw-card-anim {
+  from {
+    transform: translate(-100px, 150px) scale(0.2) rotate(45deg);
+    opacity: 0;
+  }
+  to {
+    transform: translate(0, 0) scale(1) rotate(0deg);
+    opacity: 1;
+  }
+}
