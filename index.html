@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Duel Cepat Pokémon</title>
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS (Styling) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Outfit', 'sans-serif'],
+                    },
+                    animation: {
+                        'float': 'float 3s ease-in-out infinite',
+                        'pulse-glow': 'pulse-glow 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-10px)' },
+                        },
+                        'pulse-glow': {
+                            '0%, 100%': { opacity: 1, filter: 'brightness(1.2)' },
+                            '50%': { opacity: .7, filter: 'brightness(0.8)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- React & ReactDOM (Engine) -->
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+    
+    <!-- Babel (Untuk membaca JSX di dalam HTML) -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <style>
+        /* Gaya tambahan khusus */
+        body {
+            background-color: #0f172a;
+            color: #f1f5f9;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+        html, body, #root {
+            height: 100%;
+            width: 100%;
+        }
+        @keyframes scanAnim {
+            0% { top: 0%; opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { top: 100%; opacity: 1; }
+        }
+        .animate-scan {
+            animation: scanAnim 1.5s ease-in-out infinite;
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useRef } = React;
+
+        // ==========================================
+        // ICON SVG CUSTOM (Pengganti Library Eksternal)
+        // ==========================================
+        const IconCamera = ({ className }) => (<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></svg>);
+        const IconPlay = ({ className }) => (<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polygon points="5 3 19 12 5 21 5 3"/></svg>);
+        const IconSwords = ({ className }) => (<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polyline points="14.5 17.5 3 6 3 3 6 3 17.5 14.5"/><line x1="13" y1="19" x2="19" y2="13"/><line x1="16" y1="16" x2="20" y2="20"/><line x1="19" y1="21" x2="21" y2="19"/><polyline points="14.5 6.5 18 3 21 3 21 6 17.5 9.5"/><line x1="5" y1="14" x2="9" y2="10"/><line x1="4" y1="19" x2="9" y2="14"/></svg>);
+        const IconCoins = ({ className }) => (<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="8" cy="8" r="6"/><path d="M18.09 10.37A6 6 0 1 1 10.34 18"/></svg>);
+        const IconRefreshCw = ({ className }) => (<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>);
+        const IconInfo = ({ className }) => (<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>);
+        const IconShieldAlert = ({ className }) => (<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>);
+
+        // ==========================================
+        // KONSTANTA & UTILITY
+        // ==========================================
+        const MAX_BENCH = 2;
+        const MAX_SCORE = 3;
+
+        const generateCardId = () => Math.random().toString(36).substr(2, 9);
+
+        const parseDamage = (dmgStr) => {
+            if (!dmgStr) return 10;
+            const num = parseInt(dmgStr.replace(/[^0-9]/g, ''));
+            return isNaN(num) ? 10 : num;
+        };
+
+        const mapApiCardToGameCard = (card) => {
+            const isBasic = card.subtypes?.includes('Basic');
+            const stage = isBasic ? 0 : (card.subtypes?.includes('Stage 1') ? 1 : 2);
+            
+            let attacks = [];
+            if (card.attacks) {
+                attacks.push({
+                    name: card.attacks[0].name,
+                    damage: parseDamage(card.attacks[0].damage),
+                    cost: 'Free'
+                });
+                if (card.attacks.length > 1) {
+                    attacks.push({
+                        name: card.attacks[1].name,
+                        damage: parseDamage(card.attacks[1].damage) * 1.5,
+                        cost: 'Coin'
+                    });
+                }
+            } else {
+                attacks.push({ name: 'Tackle', damage: 20, cost: 'Free' });
+            }
+
+            return {
+                uid: generateCardId(),
+                id: card.id,
+                name: card.name,
+                hp: parseInt(card.hp) || 60,
+                maxHp: parseInt(card.hp) || 60,
+                type: card.types ? card.types[0] : 'Normal',
+                stage: stage,
+                attacks: attacks,
+                image: card.images.small,
+                damageCounters: 0
+            };
+        };
+
+        // ==========================================
+        // KOMPONEN MENU
+        // ==========================================
+        function MenuScreen({ onStart, onScan, customCardsCount }) {
+            return (
+                <div className="flex-1 flex flex-col items-center justify-center p-6 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-slate-800 via-slate-900 to-black h-full w-full relative overflow-hidden">
+                    <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] opacity-30"></div>
+                    <div className="absolute top-[-10%] left-[-10%] w-96 h-96 bg-blue-600/30 rounded-full blur-[100px] animate-pulse"></div>
+                    <div className="absolute bottom-[-10%] right-[-10%] w-96 h-96 bg-purple-600/30 rounded-full blur-[100px] animate-pulse" style={{animationDelay: '1s'}}></div>
+                    
+                    <div className="bg-white/5 p-8 rounded-3xl shadow-[0_8px_32px_0_rgba(0,0,0,0.36)] max-w-md w-full border border-white/10 backdrop-blur-xl text-center relative z-10 animate-float">
+                        <div className="bg-white/10 w-20 h-20 mx-auto rounded-full flex items-center justify-center mb-6 shadow-inner border border-white/20">
+                            <IconSwords className="w-10 h-10 text-yellow-400" />
+                        </div>
+                        <h2 className="text-4xl font-black mb-8 bg-gradient-to-br from-white to-slate-400 bg-clip-text text-transparent drop-shadow-sm">Siap Berduel?</h2>
+                        
+                        <div className="space-y-4">
+                            <button onClick={onStart} className="w-full py-4 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white rounded-2xl font-bold text-lg flex items-center justify-center gap-3 shadow-[0_0_20px_rgba(79,70,229,0.4)] transition-all transform hover:scale-[1.02] active:scale-95 border border-white/10">
+                                <IconPlay className="w-6 h-6" /> Mulai Lawan Komputer
+                            </button>
+                            
+                            <button onClick={onScan} className="w-full py-4 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white rounded-2xl font-bold text-lg flex items-center justify-center gap-3 shadow-[0_0_20px_rgba(16,185,129,0.4)] transition-all transform hover:scale-[1.02] active:scale-95 border border-white/10">
+                                <IconCamera className="w-6 h-6" /> Scan Kartu Nyata
+                            </button>
+                        </div>
+
+                        <div className="mt-8 p-5 bg-black/40 rounded-2xl text-sm text-slate-300 border border-white/5 backdrop-blur-md">
+                            <div className="flex justify-between items-center mb-2">
+                                <span className="font-semibold text-slate-400">Kartu Tersimpan</span>
+                                <span className="font-black text-yellow-400 bg-yellow-400/10 px-3 py-1 rounded-full">{customCardsCount} / 20</span>
+                            </div>
+                            <div className="w-full bg-slate-800 rounded-full h-1.5 mb-3 overflow-hidden">
+                                <div className="bg-gradient-to-r from-yellow-500 to-yellow-300 h-1.5 rounded-full" style={{width: `${(customCardsCount/20)*100}%`}}></div>
+                            </div>
+                            <p className="text-xs italic text-slate-500">Jika kurang dari 20, dek diisi otomatis.</p>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        // ==========================================
+        // KOMPONEN SCANNER (KAMERA)
+        // ==========================================
+        function ScannerScreen({ onAddCard, onBack }) {
+            const videoRef = useRef(null);
+            const [stream, setStream] = useState(null);
+            const [scanning, setScanning] = useState(false);
+            const [searchName, setSearchName] = useState('');
+            const [searchResult, setSearchResult] = useState(null);
+            const [loading, setLoading] = useState(false);
+
+            useEffect(() => {
+                let currentStream = null;
+                navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
+                .then(s => {
+                    currentStream = s;
+                    setStream(s);
+                })
+                .catch(err => console.error("Akses kamera ditolak:", err));
+
+                return () => {
+                    if (currentStream) currentStream.getTracks().forEach(track => track.stop());
+                };
+            }, []);
+
+            useEffect(() => {
+                if (videoRef.current && stream) {
+                    videoRef.current.srcObject = stream;
+                }
+            }, [stream]);
+
+            const handleCapture = () => {
+                setScanning(true);
+                setTimeout(() => {
+                    setScanning(false);
+                    const name = prompt("Kamera mendeteksi kartu! Ketikkan nama Pokémon di kartu (misal: Pikachu):");
+                    if (name) {
+                        setSearchName(name);
+                        searchCardAPI(name);
+                    }
+                }, 1500);
+            };
+
+            const searchCardAPI = async (name) => {
+                setLoading(true);
+                try {
+                    const res = await fetch(`https://api.pokemontcg.io/v2/cards?q=name:"${name}"&pageSize=5`);
+                    const data = await res.json();
+                    if (data.data && data.data.length > 0) {
+                        setSearchResult(data.data);
+                    } else {
+                        alert("Kartu tidak ditemukan di database.");
+                    }
+                } catch (e) {
+                    alert("Gagal mencari kartu.");
+                } finally {
+                    setLoading(false);
+                }
+            };
+
+            const selectCard = (card) => {
+                onAddCard(card);
+                setSearchResult(null);
+                setSearchName('');
+                alert(`${card.name} berhasil ditambahkan ke Dek!`);
+            };
+
+            return (
+                <div className="flex-1 flex flex-col p-4 bg-black relative h-full">
+                    <div className="relative flex-1 bg-slate-900 rounded-xl overflow-hidden border-2 border-slate-700 mb-4 flex items-center justify-center">
+                        {stream ? (
+                            <video ref={videoRef} autoPlay playsInline muted className="absolute min-w-full min-h-full object-cover opacity-60" />
+                        ) : (
+                            <p className="text-slate-500 z-10 relative">Meminta akses kamera...</p>
+                        )}
+                        <div className="absolute inset-0 border-[6px] border-blue-500/30 rounded-xl pointer-events-none z-10 m-8" />
+                        {scanning && <div className="absolute top-0 left-0 w-full h-2 bg-green-400 animate-scan shadow-[0_0_15px_#4ade80] z-20" />}
+                    </div>
+
+                    {searchResult ? (
+                        <div className="bg-slate-800 p-4 rounded-xl shadow-lg border border-slate-700 max-h-64 overflow-y-auto">
+                            <h3 className="text-lg font-bold mb-3">Pilih Kartu yang Sesuai:</h3>
+                            <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+                                {searchResult.map(card => (
+                                    <div key={card.id} className="cursor-pointer transition transform hover:scale-105" onClick={() => selectCard(card)}>
+                                        <img src={card.images.small} alt={card.name} className="w-full rounded" />
+                                        <p className="text-xs text-center mt-1 truncate">{card.name}</p>
+                                    </div>
+                                ))}
+                            </div>
+                            <button onClick={() => setSearchResult(null)} className="mt-4 w-full py-2 bg-slate-600 rounded text-sm font-bold">Batal</button>
+                        </div>
+                    ) : (
+                        <div className="flex gap-4">
+                            <button onClick={onBack} className="px-4 py-3 bg-slate-700 hover:bg-slate-600 rounded-xl font-bold">Kembali</button>
+                            <button onClick={handleCapture} disabled={loading || scanning} className="flex-1 py-3 bg-blue-600 hover:bg-blue-500 rounded-xl font-bold flex items-center justify-center gap-2 shadow-lg shadow-blue-900/50">
+                                <IconCamera className="w-5 h-5" /> {loading ? 'Mencari...' : 'Jepret & Scan'}
+                            </button>
+                        </div>
+                    )}
+                </div>
+            );
+        }
+
+        // ==========================================
+        // KOMPONEN GAME ENGINE
+        // ==========================================
+        function GameScreen({ gameData, setGameData, setGameState }) {
+            const { player, ai, turn, phase, logs, coinFlipping } = gameData;
+            const [coinResult, setCoinResult] = useState(null);
+
+            const addLog = (msg) => {
+                setGameData(prev => ({ ...prev, logs: [msg, ...prev.logs].slice(0, 5) }));
+            };
+
+            useEffect(() => {
+                if (turn === 'ai' && !gameData.winner) {
+                    const timer = setTimeout(() => playAITurn(), 1500);
+                    return () => clearTimeout(timer);
+                }
+            }, [turn, phase, gameData.winner]);
+
+            const playAITurn = () => {
+                let state = { ...gameData };
+                let aiState = { ...state.ai };
+
+                if (phase === 'setup' || phase === 'select_active') {
+                    if (!aiState.active) {
+                        if (phase === 'setup') {
+                            const basicIdx = aiState.hand.findIndex(c => c.stage === 0);
+                            if (basicIdx > -1) {
+                                aiState.active = aiState.hand.splice(basicIdx, 1)[0];
+                                addLog("AI menaruh Pokémon Aktif.");
+                            }
+                        } else {
+                            if (aiState.bench.length > 0) {
+                                aiState.active = aiState.bench.shift();
+                                addLog(`AI memajukan ${aiState.active.name} ke depan.`);
+                            }
+                        }
+                    }
+                    state.ai = aiState;
+                    if (phase === 'setup' && state.player.active) state.phase = 'main';
+                    else if (phase === 'select_active') state.phase = 'main';
+                    
+                    setGameData(state);
+                    return;
+                }
+
+                if (phase === 'main') {
+                    if (aiState.deck.length > 0) aiState.hand.push(aiState.deck.pop());
+
+                    for (let i = aiState.hand.length - 1; i >= 0; i--) {
+                        if (aiState.hand[i].stage === 0 && aiState.bench.length < MAX_BENCH) {
+                            aiState.bench.push(aiState.hand.splice(i, 1)[0]);
+                            addLog("AI menaruh Pokémon di Cadangan.");
+                        }
+                    }
+
+                    state.ai = aiState;
+                    state.phase = 'attack';
+                    setGameData(state);
+                    setTimeout(() => executeAIAttack(), 1500);
+                }
+            };
+
+            const executeAIAttack = () => {
+                setGameData(prev => {
+                    let state = { ...prev };
+                    let aiState = state.ai;
+                    let pState = state.player;
+
+                    if (aiState.active && pState.active) {
+                        const attack = aiState.active.attacks[0];
+                        pState.active.damageCounters += attack.damage;
+                        addLog(`AI ${aiState.active.name} menggunakan ${attack.name}, damage ${attack.damage}!`);
+                        
+                        if (pState.active.damageCounters >= pState.active.maxHp) {
+                            addLog(`Pokémon kamu ${pState.active.name} KO!`);
+                            aiState.score += 1;
+                            pState.active = null;
+                            if (aiState.score >= MAX_SCORE || pState.bench.length === 0) { 
+                                state.winner = 'AI'; 
+                                return state; 
+                            }
+                            state.phase = 'select_active';
+                            state.turn = 'player';
+                            state.player.hasRetreated = false;
+                            if (state.player.deck.length > 0) {
+                                state.player.hand.push(state.player.deck.pop());
+                                addLog("Giliranmu. Kamu menarik 1 kartu.");
+                            }
+                            return state;
+                        }
+                    }
+                    
+                    if (state.phase !== 'select_active') {
+                        state.turn = 'player';
+                        state.phase = 'main';
+                        state.player.hasRetreated = false;
+                        if (state.player.deck.length > 0) {
+                            state.player.hand.push(state.player.deck.pop());
+                            addLog("Giliranmu. Kamu menarik 1 kartu.");
+                        }
+                    }
+                    return state;
+                });
+            };
+
+            const handleCardClick = (card, sourceIndex, source) => {
+                if (turn !== 'player') return;
+
+                let state = { ...gameData };
+                let pState = state.player;
+
+                if (phase === 'setup' || phase === 'select_active') {
+                    if (source === 'hand' && card.stage === 0 && phase === 'setup') {
+                        pState.active = pState.hand.splice(sourceIndex, 1)[0];
+                        addLog(`Kamu memilih ${card.name} sebagai Pokémon Aktif.`);
+                        if (state.ai.active) state.phase = 'main';
+                    } else if (source === 'bench' && phase === 'select_active') {
+                        pState.active = pState.bench.splice(sourceIndex, 1)[0];
+                        addLog(`Kamu memajukan ${card.name}.`);
+                        state.phase = 'main';
+                    } else if (phase === 'select_active' && source === 'hand') {
+                        alert("Pilih Pokémon dari Cadangan (Bench)!");
+                    }
+                    setGameData(state);
+                    return;
+                }
+
+                if (phase === 'main') {
+                    if (source === 'hand') {
+                        if (card.stage === 0 && pState.bench.length < MAX_BENCH) {
+                            pState.bench.push(pState.hand.splice(sourceIndex, 1)[0]);
+                            addLog(`Kamu menaruh ${card.name} di Cadangan.`);
+                            setGameData(state);
+                        } else if (card.stage > 0) {
+                            const tryEvolve = (targetCard, targetSource, targetIdx) => {
+                                if (targetCard.type === card.type && targetCard.stage === card.stage - 1) {
+                                    let newCard = pState.hand.splice(sourceIndex, 1)[0];
+                                    newCard.damageCounters = targetCard.damageCounters;
+                                    if (targetSource === 'active') pState.active = newCard;
+                                    if (targetSource === 'bench') pState.bench[targetIdx] = newCard;
+                                    addLog(`Evolusi menjadi ${newCard.name}!`);
+                                    setGameData(state);
+                                    return true;
+                                }
+                                return false;
+                            };
+
+                            let evolved = false;
+                            if (pState.active) evolved = tryEvolve(pState.active, 'active', null);
+                            if (!evolved) {
+                                for (let i=0; i < pState.bench.length; i++) {
+                                    if (tryEvolve(pState.bench[i], 'bench', i)) { evolved = true; break; }
+                                }
+                            }
+                            if (!evolved) alert("Tidak ada Pokémon di arena dengan tipe warna sama dan level lebih rendah untuk dievolusi.");
+                        }
+                    }
+                }
+            };
+
+            const handleRetreat = (benchIdx) => {
+                if (turn !== 'player' || phase !== 'main') return;
+                let state = { ...gameData };
+                let pState = state.player;
+
+                if (pState.hasRetreated) { alert("Sudah mundur giliran ini!"); return; }
+
+                const oldActive = pState.active;
+                const newActive = pState.bench[benchIdx];
+                pState.active = newActive;
+                pState.bench[benchIdx] = oldActive;
+                pState.hasRetreated = true;
+                addLog(`Kamu menukar Aktif menjadi ${newActive.name}.`);
+                setGameData(state);
+            };
+
+            const executePlayerAttack = (attackIdx) => {
+                if (turn !== 'player' || phase !== 'main') return;
+                
+                let state = { ...gameData };
+                const attack = state.player.active.attacks[attackIdx];
+
+                const resolveDamage = (isHit) => {
+                    if (isHit) {
+                        state.ai.active.damageCounters += attack.damage;
+                        addLog(`${state.player.active.name} serang: ${attack.name}, damage ${attack.damage}!`);
+                        
+                        if (state.ai.active.damageCounters >= state.ai.active.maxHp) {
+                            addLog(`Lawan ${state.ai.active.name} KO!`);
+                            state.player.score += 1;
+                            state.ai.active = null;
+                            if (state.player.score >= MAX_SCORE || state.ai.bench.length === 0) {
+                                state.winner = 'Player';
+                                setGameData(state);
+                                return;
+                            }
+                        }
+                    } else {
+                        addLog(`${state.player.active.name} serang ${attack.name}, GAGAL (Ekor)!`);
+                    }
+
+                    if (!state.winner) {
+                        state.turn = 'ai';
+                        if (!state.ai.active && state.ai.bench.length > 0) state.phase = 'select_active';
+                        else state.phase = 'main';
+                    }
+                    setGameData(state);
+                };
+
+                if (attack.cost === 'Coin') {
+                    state.coinFlipping = true;
+                    setGameData(state);
+                    setTimeout(() => {
+                        const isHeads = Math.random() > 0.5;
+                        setCoinResult(isHeads ? 'Kepala' : 'Ekor');
+                        setTimeout(() => {
+                            setCoinResult(null);
+                            state.coinFlipping = false;
+                            resolveDamage(isHeads);
+                        }, 1500);
+                    }, 1000);
+                } else {
+                    resolveDamage(true);
+                }
+            };
+
+            const getTypeColor = (type) => {
+                const colors = { Fire: 'bg-red-500', Water: 'bg-blue-500', Grass: 'bg-green-500', Lightning: 'bg-yellow-400', Psychic: 'bg-purple-500', Fighting: 'bg-orange-700', Darkness: 'bg-slate-800', Metal: 'bg-gray-400', Colorless: 'bg-gray-200' };
+                return colors[type] || 'bg-gray-500';
+            };
+
+            const renderCard = (card, context, index = null) => {
+                if (!card) return (
+                    <div className="w-16 h-24 sm:w-20 sm:h-28 md:w-24 md:h-36 border-2 border-dashed border-white/10 rounded-2xl flex items-center justify-center bg-black/20 backdrop-blur-sm shadow-inner">
+                        <span className="text-[10px] md:text-xs text-slate-500 font-semibold">Kosong</span>
+                    </div>
+                );
+
+                const isHand = context === 'hand';
+                const isAiHand = context === 'aiHand';
+                const isActive = context === 'active' || context === 'aiActive';
+                const isBench = context === 'bench' || context === 'aiBench';
+
+                if (isAiHand) {
+                    return <div className="w-12 h-16 md:w-16 md:h-24 bg-[url('https://tcg.pokemon.com/assets/img/global/tcg-card-back-2x.jpg')] bg-cover bg-center rounded-xl border border-white/10 shadow-[0_4px_12px_rgba(0,0,0,0.5)]"></div>;
+                }
+
+                const damageCounters = Math.floor(card.damageCounters / 10);
+                const tokens = [];
+                for(let i=0; i<damageCounters; i++){
+                    tokens.push(<div key={i} className="w-3.5 h-3.5 bg-gradient-to-br from-red-400 to-red-600 rounded-full border border-red-900 shadow-[0_2px_4px_rgba(0,0,0,0.5)] -ml-1.5 mt-1 font-black text-[8px] text-white flex items-center justify-center leading-none">10</div>);
+                }
+
+                return (
+                    <div onClick={() => handleCardClick(card, index, context.replace('ai', '').toLowerCase())}
+                        className={`relative rounded-2xl border-[3px] shadow-2xl overflow-hidden transition-all duration-300 transform 
+                        ${isHand && turn === 'player' ? 'hover:-translate-y-3 cursor-pointer hover:shadow-[0_10px_25px_rgba(59,130,246,0.5)] hover:border-blue-400' : ''}
+                        ${context.includes('ai') ? (isActive ? 'border-red-500 shadow-[0_0_20px_rgba(239,68,68,0.4)]' : 'border-red-900/50') : (isActive ? 'border-yellow-400 shadow-[0_0_25px_rgba(250,204,21,0.5)]' : 'border-blue-900/50')}
+                        ${isActive ? 'w-24 h-36 sm:w-28 sm:h-40 md:w-32 md:h-44 z-10' : 'w-16 h-24 sm:w-20 sm:h-28 md:w-24 md:h-36'}
+                        bg-slate-800 flex flex-col group shrink-0`}
+                    >
+                        {/* Glare effect */}
+                        <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-30 pointer-events-none transform -skew-x-12 translate-x-[-100%] group-hover:translate-x-[100%]"></div>
+                        
+                        <div className={`h-1.5 w-full ${getTypeColor(card.type)} opacity-80`}></div>
+                        <div className="absolute top-1 right-1 flex flex-wrap w-14 justify-end z-20">{tokens}</div>
+                        
+                        <div className="absolute top-1.5 left-1.5 bg-black/80 backdrop-blur-md rounded px-1.5 py-0.5 text-[9px] md:text-[10px] font-black z-10 flex items-center gap-1 border border-white/10 shadow-lg text-white">
+                            <span className="text-green-400">HP</span> {card.maxHp - card.damageCounters}
+                        </div>
+                        
+                        <img src={card.image} alt={card.name} className="flex-1 object-cover object-top opacity-95 group-hover:opacity-100 group-hover:scale-105 transition-all duration-500" />
+                        
+                        <div className="h-[35%] bg-gradient-to-t from-slate-900 via-slate-900/90 to-transparent w-full absolute bottom-0 flex flex-col justify-end p-2 z-10">
+                            <p className="text-[10px] md:text-xs font-black truncate leading-tight text-white drop-shadow-md">{card.name}</p>
+                            <p className="text-[8px] md:text-[9px] text-slate-300 font-semibold">{card.stage === 0 ? 'Basic' : `Stage ${card.stage}`}</p>
+                        </div>
+                        
+                        {isBench && turn === 'player' && phase === 'main' && !player.hasRetreated && (
+                            <div className="absolute inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all z-40">
+                                <button onClick={(e) => { e.stopPropagation(); handleRetreat(index); }} className="bg-blue-600/90 p-3 rounded-full hover:bg-blue-500 hover:scale-110 transition-transform shadow-[0_0_15px_rgba(59,130,246,0.8)] border border-blue-400">
+                                    <IconRefreshCw className="w-5 h-5 text-white" />
+                                </button>
+                            </div>
+                        )}
+                    </div>
+                );
+            };
+
+            if (gameData.winner) {
+                return (
+                    <div className="flex-1 flex items-center justify-center bg-black/90 p-6 z-50 h-full">
+                        <div className="text-center bg-slate-800 p-10 rounded-3xl border border-slate-700 shadow-2xl">
+                            <h2 className="text-5xl font-black mb-4 bg-gradient-to-r from-yellow-400 to-orange-500 bg-clip-text text-transparent">
+                                {gameData.winner === 'Player' ? 'KAMU MENANG!' : 'KAMU KALAH!'}
+                            </h2>
+                            <button onClick={() => setGameState('MENU')} className="px-6 py-3 bg-blue-600 hover:bg-blue-500 rounded-xl font-bold">Kembali ke Menu</button>
+                        </div>
+                    </div>
+                );
+            }
+
+            return (
+                <div className="flex-1 flex flex-col h-full max-h-[calc(100vh-76px)]">
+                    <div className="flex-none p-2 md:p-4 bg-gradient-to-b from-red-950/40 to-transparent flex flex-col items-center relative border-b border-red-900/20 backdrop-blur-[2px]">
+                        <div className="absolute top-0 right-0 w-64 h-64 bg-red-600/10 rounded-full blur-[80px] pointer-events-none"></div>
+                        <div className="w-full flex justify-between items-start px-4 text-xs md:text-sm font-bold text-red-400 mb-2 md:mb-4 relative z-10">
+                            <div className="flex gap-1 items-center bg-black/40 px-3 py-1 rounded-full border border-red-900/50 backdrop-blur-sm"><IconShieldAlert className="w-4 h-4 text-red-500"/> Sisa Dek: {ai.deck.length}</div>
+                            <div className="flex gap-1 items-center bg-black/40 px-3 py-1 rounded-full border border-red-900/50 backdrop-blur-sm">Prize: {ai.score}/3 <span className="text-yellow-500">🏆</span></div>
+                        </div>
+                        <div className="flex gap-1 md:gap-2 mb-2 md:mb-6 justify-center scale-90 md:scale-100 origin-top z-10">
+                            {ai.hand.map((c, i) => <div key={i}>{renderCard(c, 'aiHand')}</div>)}
+                        </div>
+                        <div className="flex gap-4 md:gap-8 items-center z-10">
+                            <div className="flex gap-1 md:gap-2 p-1.5 md:p-3 bg-black/30 backdrop-blur-md rounded-2xl border border-white/5 shadow-inner">
+                                {renderCard(ai.bench[0], 'aiBench', 0)}
+                                {renderCard(ai.bench[1], 'aiBench', 1)}
+                            </div>
+                            <div className="relative">
+                                <div className="absolute -top-6 md:-top-8 left-1/2 -translate-x-1/2 text-[9px] md:text-xs font-bold bg-gradient-to-r from-red-800 to-red-600 px-3 py-1 rounded-full text-white shadow-lg whitespace-nowrap z-20 border border-red-400/30">Lawan</div>
+                                {renderCard(ai.active, 'aiActive')}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="flex-1 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-slate-800 via-slate-900 to-slate-950 flex items-center justify-center relative overflow-hidden p-4 min-h-[120px] shadow-[inset_0_0_50px_rgba(0,0,0,0.5)]">
+                        {/* Center battle line */}
+                        <div className="absolute top-1/2 left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-cyan-500/50 to-transparent shadow-[0_0_15px_rgba(6,182,212,0.5)]"></div>
+                        
+                        {/* Logs */}
+                        <div className="absolute left-2 md:left-4 top-1/2 -translate-y-1/2 bg-black/40 border border-white/10 p-3 rounded-2xl text-xs w-40 md:w-56 text-slate-300 z-10 backdrop-blur-md pointer-events-none hidden sm:block shadow-xl">
+                            <h4 className="font-black text-white mb-2 border-b border-white/10 pb-2 flex items-center gap-2"><IconInfo className="w-4 h-4 text-blue-400"/> Riwayat</h4>
+                            <div className="space-y-1.5 flex flex-col-reverse h-24 overflow-hidden text-[10px] md:text-xs font-medium">
+                                {logs.map((log, i) => <p key={i} className={i===0 ? 'text-white' : 'text-slate-500'}>{log}</p>)}
+                            </div>
+                        </div>
+                        
+                        {/* Turn indicator */}
+                        <div className="absolute right-0 top-1/2 -translate-y-1/2 flex flex-col gap-3 items-end z-10 pointer-events-none">
+                            <div className={`px-4 py-2 rounded-l-2xl font-black shadow-2xl transition-all duration-300 text-xs md:text-sm border-y border-l ${turn === 'player' ? 'bg-gradient-to-l from-blue-700 to-blue-500 text-white border-blue-400 translate-x-0 scale-110' : 'bg-slate-800/80 text-slate-500 border-white/5 translate-x-4 scale-90 backdrop-blur-md'}`}>GILIRANMU</div>
+                            <div className={`px-4 py-2 rounded-l-2xl font-black shadow-2xl transition-all duration-300 text-xs md:text-sm border-y border-l ${turn === 'ai' ? 'bg-gradient-to-l from-red-700 to-red-500 text-white border-red-400 translate-x-0 scale-110' : 'bg-slate-800/80 text-slate-500 border-white/5 translate-x-4 scale-90 backdrop-blur-md'}`}>MUSUH</div>
+                        </div>
+
+                        {(coinFlipping || coinResult) && (
+                            <div className="absolute inset-0 bg-black/80 flex items-center justify-center z-50 backdrop-blur-md">
+                                <div className="bg-gradient-to-b from-slate-800 to-slate-900 p-8 rounded-3xl border border-yellow-500/50 shadow-[0_0_50px_rgba(234,179,8,0.3)] flex flex-col items-center">
+                                    <h3 className="text-xl font-bold mb-6 text-yellow-400">Lempar Koin!</h3>
+                                    <div className={`w-24 h-24 bg-yellow-400 rounded-full border-4 border-yellow-600 flex items-center justify-center shadow-inner mb-6 ${!coinResult ? 'animate-[spin_0.5s_linear_infinite]' : ''}`}>
+                                        {coinResult ? <span className="text-2xl font-black text-yellow-900">{coinResult}</span> : <IconCoins className="w-12 h-12 text-yellow-700" />}
+                                    </div>
+                                    <p className="text-slate-300">{!coinResult ? 'Menunggu...' : (coinResult === 'Kepala' ? 'Serangan Berhasil!' : 'Meleset!')}</p>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+
+                    <div className="flex-none p-2 md:p-4 bg-gradient-to-t from-blue-950/60 to-transparent flex flex-col items-center relative border-t border-blue-900/20 backdrop-blur-[2px] pb-4">
+                        <div className="absolute bottom-0 left-0 w-64 h-64 bg-blue-600/10 rounded-full blur-[80px] pointer-events-none"></div>
+                        
+                        {turn === 'player' && phase === 'main' && player.active && (
+                            <div className="absolute -top-12 md:-top-16 bg-black/70 backdrop-blur-xl border border-blue-500/50 p-2 md:p-3 rounded-2xl flex gap-2 md:gap-3 shadow-[0_10px_30px_rgba(59,130,246,0.4)] z-40 scale-90 md:scale-100 animate-float">
+                                {player.active.attacks.map((atk, idx) => (
+                                    <button key={idx} onClick={() => executePlayerAttack(idx)} className={`px-3 md:px-5 py-2 md:py-3 rounded-xl font-black text-xs md:text-sm flex flex-col items-center gap-1 transition-all active:scale-95 border border-white/20 shadow-lg ${atk.cost === 'Coin' ? 'bg-gradient-to-br from-orange-500 to-red-600 hover:from-orange-400 hover:to-red-500' : 'bg-gradient-to-br from-red-600 to-rose-700 hover:from-red-500 hover:to-rose-600'}`}>
+                                        <span className="drop-shadow-md text-white">{atk.name} <span className="text-yellow-300">({atk.damage})</span></span>
+                                        {atk.cost === 'Coin' ? <span className="text-[9px] md:text-[10px] bg-black/40 px-2 py-0.5 rounded-full flex items-center gap-1 text-yellow-200"><IconCoins className="w-3 h-3"/> Koin</span> : <span className="text-[9px] md:text-[10px] bg-black/40 px-2 py-0.5 rounded-full text-green-300">Gratis</span>}
+                                    </button>
+                                ))}
+                                <button onClick={() => setGameData(prev => ({...prev, turn: 'ai', phase: 'main', logs: ["Kamu mengakhiri giliran.", ...prev.logs]}))} className="px-3 md:px-5 py-2 md:py-3 bg-gradient-to-br from-slate-600 to-slate-800 hover:from-slate-500 hover:to-slate-700 rounded-xl font-black text-xs md:text-sm border border-white/10 shadow-lg ml-1 md:ml-2 text-white active:scale-95 transition-all flex items-center">Akhiri</button>
+                            </div>
+                        )}
+
+                        <div className="flex gap-4 md:gap-8 items-center mb-2 md:mb-6 z-10">
+                            <div className="relative">
+                                <div className="absolute -bottom-6 md:-bottom-8 left-1/2 -translate-x-1/2 text-[9px] md:text-xs font-bold bg-gradient-to-r from-blue-800 to-blue-600 px-3 py-1 rounded-full text-white shadow-lg whitespace-nowrap z-20 border border-blue-400/30">Pahlawanmu</div>
+                                {renderCard(player.active, 'active')}
+                            </div>
+                            <div className="flex gap-1 md:gap-2 p-1.5 md:p-3 bg-black/30 backdrop-blur-md rounded-2xl border border-white/5 shadow-inner">
+                                {renderCard(player.bench[0], 'bench', 0)}
+                                {renderCard(player.bench[1], 'bench', 1)}
+                            </div>
+                        </div>
+
+                        <div className="w-full flex flex-col items-center px-2 md:px-4 z-10 relative">
+                            <div className="w-full flex justify-between items-end text-[10px] md:text-xs font-bold text-blue-300 mb-2 max-w-2xl px-2">
+                                <div className="flex gap-1 items-center bg-blue-900/40 px-3 py-1 rounded-full border border-blue-500/30">Prize Kamu: {player.score}/3 <span className="text-yellow-500">🏆</span></div>
+                                <div className="flex gap-1 items-center bg-blue-900/40 px-3 py-1 rounded-full border border-blue-500/30"><IconInfo className="w-3 h-3 md:w-4 md:h-4 text-blue-400"/> Dek: {player.deck.length}</div>
+                            </div>
+                            <div className="flex gap-2 overflow-x-auto p-3 md:p-5 w-full justify-start md:justify-center min-h-[140px] md:min-h-[180px] bg-black/40 backdrop-blur-xl rounded-t-3xl border border-b-0 border-white/10 max-w-4xl shadow-[0_-10px_30px_rgba(0,0,0,0.3)] scrollbar-hide">
+                                {player.hand.map((c, i) => <div key={c.uid} className="shrink-0">{renderCard(c, 'hand', i)}</div>)}
+                                {player.hand.length === 0 && <span className="text-slate-500 text-sm mt-4 md:mt-8">Tangan Kosong</span>}
+                            </div>
+                        </div>
+                        
+                        {phase === 'setup' && turn === 'player' && (
+                            <div className="absolute inset-0 bg-black/70 flex items-center justify-center z-40 backdrop-blur-sm pointer-events-none text-center p-4">
+                                <h2 className="text-xl md:text-2xl font-bold text-yellow-400 bg-slate-900 p-4 rounded-xl border border-yellow-600 shadow-2xl animate-pulse">Pilih Kartu "Basic" dari Tangan sebagai Pokémon Aktif!</h2>
+                            </div>
+                        )}
+                        {phase === 'select_active' && turn === 'player' && (
+                            <div className="absolute inset-0 bg-black/70 flex items-center justify-center z-40 backdrop-blur-sm pointer-events-none text-center p-4">
+                                <h2 className="text-xl md:text-2xl font-bold text-yellow-400 bg-slate-900 p-4 rounded-xl border border-yellow-600 shadow-2xl animate-pulse">Pokémon-mu Gugur! Majukan dari Cadangan.</h2>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            );
+        }
+
+        // ==========================================
+        // KOMPONEN UTAMA (APP)
+        // ==========================================
+        function App() {
+            const [gameState, setGameState] = useState('MENU');
+            const [loadingMsg, setLoadingMsg] = useState('');
+            const [playerCustomDeck, setPlayerCustomDeck] = useState([]);
+            const [gameData, setGameData] = useState(null);
+            
+            const fetchDefaultCards = async () => {
+                setLoadingMsg('Mengambil kartu dari database...');
+                try {
+                    const res = await fetch('https://api.pokemontcg.io/v2/cards?q=supertype:pokemon&pageSize=40');
+                    const data = await res.json();
+                    return data.data.map(mapApiCardToGameCard);
+                } catch (e) {
+                    alert('Gagal mengambil kartu. Periksa koneksi internet.');
+                    return [];
+                } finally {
+                    setLoadingMsg('');
+                }
+            };
+
+            const startGame = async () => {
+                let pool = await fetchDefaultCards();
+                if (pool.length === 0) return;
+
+                pool = pool.sort(() => Math.random() - 0.5);
+
+                const shuffleAndEnsureBasic = (deck) => {
+                    deck.sort(() => Math.random() - 0.5);
+                    const basicIdx = deck.findIndex(c => c.stage === 0);
+                    if (basicIdx > -1 && basicIdx > 4) {
+                        const temp = deck[0];
+                        deck[0] = deck[basicIdx];
+                        deck[basicIdx] = temp;
+                    }
+                    return deck;
+                };
+
+                let pDeckFull = [...playerCustomDeck];
+                while (pDeckFull.length < 20 && pool.length > 0) {
+                    pDeckFull.push({...pool.pop(), uid: generateCardId()});
+                }
+
+                let aiDeckFull = [];
+                while (aiDeckFull.length < 20 && pool.length > 0) {
+                    aiDeckFull.push({...pool.pop(), uid: generateCardId()});
+                }
+
+                let pDeck = shuffleAndEnsureBasic(pDeckFull);
+                let aiDeck = shuffleAndEnsureBasic(aiDeckFull);
+
+                let pHand = pDeck.splice(0, 5);
+                let aiHand = aiDeck.splice(0, 5);
+
+                let aiActive = null;
+                const aiBasicIdx = aiHand.findIndex(c => c.stage === 0);
+                if (aiBasicIdx > -1) {
+                    aiActive = aiHand.splice(aiBasicIdx, 1)[0];
+                }
+
+                setGameData({
+                    player: { deck: pDeck, hand: pHand, active: null, bench: [], score: 0, hasRetreated: false },
+                    ai: { deck: aiDeck, hand: aiHand, active: aiActive, bench: [], score: 0 },
+                    turn: 'player',
+                    phase: 'setup',
+                    logs: ['Permainan Dimulai! Pemain pilih Pokémon Aktif.'],
+                    coinFlipping: false,
+                    winner: null
+                });
+                setGameState('PLAYING');
+            };
+
+            return (
+                <div className="h-full w-full bg-slate-950 text-slate-100 font-sans selection:bg-blue-500 flex flex-col overflow-hidden relative">
+                    {/* Global subtle texture */}
+                    <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] opacity-10 pointer-events-none"></div>
+                    
+                    <header className="bg-slate-900/80 backdrop-blur-xl p-4 shadow-[0_4px_20px_rgba(0,0,0,0.5)] flex items-center justify-between z-50 border-b border-white/5 flex-none relative">
+                        <div className="flex items-center gap-3">
+                            <div className="bg-gradient-to-br from-red-500 to-red-700 p-2 rounded-xl border border-red-400/50 shadow-[0_0_15px_rgba(239,68,68,0.4)]">
+                                <IconSwords className="w-6 h-6 text-white" />
+                            </div>
+                            <h1 className="text-xl md:text-2xl font-black bg-gradient-to-r from-yellow-400 via-yellow-200 to-yellow-500 bg-clip-text text-transparent drop-shadow-sm tracking-tight">
+                                DUEL CEPAT
+                            </h1>
+                        </div>
+                        {gameState !== 'MENU' && (
+                            <button onClick={() => setGameState('MENU')} className="text-xs md:text-sm bg-white/10 hover:bg-white/20 border border-white/10 px-4 py-2 rounded-lg font-bold transition-all shadow-sm">
+                                Menyerah
+                            </button>
+                        )}
+                    </header>
+
+                    <main className="flex-1 relative flex flex-col z-10">
+                        {loadingMsg && (
+                            <div className="absolute inset-0 bg-slate-950/90 z-50 flex items-center justify-center backdrop-blur-md">
+                                <div className="text-center animate-pulse flex flex-col items-center">
+                                    <IconRefreshCw className="w-12 h-12 mb-4 animate-[spin_1s_linear_infinite] text-blue-400" />
+                                    <p className="text-xl font-semibold text-blue-200">{loadingMsg}</p>
+                                </div>
+                            </div>
+                        )}
+
+                        {gameState === 'MENU' && <MenuScreen onStart={startGame} onScan={() => setGameState('SCANNER')} customCardsCount={playerCustomDeck.length} />}
+                        {gameState === 'SCANNER' && <ScannerScreen onAddCard={(card) => setPlayerCustomDeck([...playerCustomDeck, mapApiCardToGameCard(card)])} onBack={() => setGameState('MENU')} />}
+                        {gameState === 'PLAYING' && gameData && <GameScreen gameData={gameData} setGameData={setGameData} setGameState={setGameState} />}
+                    </main>
+                </div>
+            );
+        }
+
+        // ==========================================
+        // RENDER APLIKASI KE DALAM HALAMAN
+        // ==========================================
+        const rootElement = document.getElementById('root');
+        const root = ReactDOM.createRoot(rootElement);
+        root.render(<App />);
+
+    </script>
+</body>
+</html>
