@@ -306,12 +306,12 @@
                             const basicIdx = aiState.hand.findIndex(c => c.stage === 0);
                             if (basicIdx > -1) {
                                 aiState.active = aiState.hand.splice(basicIdx, 1)[0];
-                                addLog("AI menaruh Pokémon Aktif.");
+                                state.logs = ["AI menaruh Pokémon Aktif.", ...state.logs].slice(0, 5);
                             }
                         } else {
                             if (aiState.bench.length > 0) {
                                 aiState.active = aiState.bench.shift();
-                                addLog(`AI memajukan ${aiState.active.name} ke depan.`);
+                                state.logs = [`AI memajukan ${aiState.active.name} ke depan.`, ...state.logs].slice(0, 5);
                             }
                         }
                     }
@@ -329,7 +329,7 @@
                     for (let i = aiState.hand.length - 1; i >= 0; i--) {
                         if (aiState.hand[i].stage === 0 && aiState.bench.length < MAX_BENCH) {
                             aiState.bench.push(aiState.hand.splice(i, 1)[0]);
-                            addLog("AI menaruh Pokémon di Cadangan.");
+                            state.logs = ["AI menaruh Pokémon di Cadangan.", ...state.logs].slice(0, 5);
                         }
                     }
 
@@ -349,10 +349,10 @@
                     if (aiState.active && pState.active) {
                         const attack = aiState.active.attacks[0];
                         pState.active.damageCounters += attack.damage;
-                        addLog(`AI ${aiState.active.name} menggunakan ${attack.name}, damage ${attack.damage}!`);
+                        state.logs = [`AI ${aiState.active.name} menggunakan ${attack.name}, damage ${attack.damage}!`, ...state.logs].slice(0, 5);
                         
                         if (pState.active.damageCounters >= pState.active.maxHp) {
-                            addLog(`Pokémon kamu ${pState.active.name} KO!`);
+                            state.logs = [`Pokémon kamu ${pState.active.name} KO!`, ...state.logs].slice(0, 5);
                             aiState.score += 1;
                             pState.active = null;
                             if (aiState.score >= MAX_SCORE || pState.bench.length === 0) { 
@@ -364,7 +364,7 @@
                             state.player.hasRetreated = false;
                             if (state.player.deck.length > 0) {
                                 state.player.hand.push(state.player.deck.pop());
-                                addLog("Giliranmu. Kamu menarik 1 kartu.");
+                                state.logs = ["Giliranmu. Kamu menarik 1 kartu.", ...state.logs].slice(0, 5);
                             }
                             return state;
                         }
@@ -376,7 +376,7 @@
                         state.player.hasRetreated = false;
                         if (state.player.deck.length > 0) {
                             state.player.hand.push(state.player.deck.pop());
-                            addLog("Giliranmu. Kamu menarik 1 kartu.");
+                            state.logs = ["Giliranmu. Kamu menarik 1 kartu.", ...state.logs].slice(0, 5);
                         }
                     }
                     return state;
@@ -392,11 +392,11 @@
                 if (phase === 'setup' || phase === 'select_active') {
                     if (source === 'hand' && card.stage === 0 && phase === 'setup') {
                         pState.active = pState.hand.splice(sourceIndex, 1)[0];
-                        addLog(`Kamu memilih ${card.name} sebagai Pokémon Aktif.`);
+                        state.logs = [`Kamu memilih ${card.name} sebagai Pokémon Aktif.`, ...state.logs].slice(0, 5);
                         if (state.ai.active) state.phase = 'main';
                     } else if (source === 'bench' && phase === 'select_active') {
                         pState.active = pState.bench.splice(sourceIndex, 1)[0];
-                        addLog(`Kamu memajukan ${card.name}.`);
+                        state.logs = [`Kamu memajukan ${card.name}.`, ...state.logs].slice(0, 5);
                         state.phase = 'main';
                     } else if (phase === 'select_active' && source === 'hand') {
                         alert("Pilih Pokémon dari Cadangan (Bench)!");
@@ -409,7 +409,7 @@
                     if (source === 'hand') {
                         if (card.stage === 0 && pState.bench.length < MAX_BENCH) {
                             pState.bench.push(pState.hand.splice(sourceIndex, 1)[0]);
-                            addLog(`Kamu menaruh ${card.name} di Cadangan.`);
+                            state.logs = [`Kamu menaruh ${card.name} di Cadangan.`, ...state.logs].slice(0, 5);
                             setGameData(state);
                         } else if (card.stage > 0) {
                             const tryEvolve = (targetCard, targetSource, targetIdx) => {
@@ -418,7 +418,7 @@
                                     newCard.damageCounters = targetCard.damageCounters;
                                     if (targetSource === 'active') pState.active = newCard;
                                     if (targetSource === 'bench') pState.bench[targetIdx] = newCard;
-                                    addLog(`Evolusi menjadi ${newCard.name}!`);
+                                    state.logs = [`Evolusi menjadi ${newCard.name}!`, ...state.logs].slice(0, 5);
                                     setGameData(state);
                                     return true;
                                 }
@@ -450,7 +450,7 @@
                 pState.active = newActive;
                 pState.bench[benchIdx] = oldActive;
                 pState.hasRetreated = true;
-                addLog(`Kamu menukar Aktif menjadi ${newActive.name}.`);
+                state.logs = [`Kamu menukar Aktif menjadi ${newActive.name}.`, ...state.logs].slice(0, 5);
                 setGameData(state);
             };
 
@@ -463,10 +463,10 @@
                 const resolveDamage = (isHit) => {
                     if (isHit) {
                         state.ai.active.damageCounters += attack.damage;
-                        addLog(`${state.player.active.name} serang: ${attack.name}, damage ${attack.damage}!`);
+                        state.logs = [`${state.player.active.name} serang: ${attack.name}, damage ${attack.damage}!`, ...state.logs].slice(0, 5);
                         
                         if (state.ai.active.damageCounters >= state.ai.active.maxHp) {
-                            addLog(`Lawan ${state.ai.active.name} KO!`);
+                            state.logs = [`Lawan ${state.ai.active.name} KO!`, ...state.logs].slice(0, 5);
                             state.player.score += 1;
                             state.ai.active = null;
                             if (state.player.score >= MAX_SCORE || state.ai.bench.length === 0) {
@@ -476,7 +476,7 @@
                             }
                         }
                     } else {
-                        addLog(`${state.player.active.name} serang ${attack.name}, GAGAL (Ekor)!`);
+                        state.logs = [`${state.player.active.name} serang ${attack.name}, GAGAL (Ekor)!`, ...state.logs].slice(0, 5);
                     }
 
                     if (!state.winner) {
